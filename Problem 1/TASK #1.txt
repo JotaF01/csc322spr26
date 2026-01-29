@@ -1,0 +1,76 @@
+TASK #1
+
+// This section of the code was implemented during class as part of the lecture example.
+
+// Import THREE
+import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r132/build/three.module.js';
+import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/controls/OrbitControls.js';
+
+// Create Renderer
+const renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+// Create Camera and Scene
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 500);
+camera.position.set(0, 0, 100);
+const scene = new THREE.Scene();
+const controls = new OrbitControls(camera, renderer.domElement);
+
+/*
+// --------------------
+// Shape Functions
+// --------------------
+// Line (1D Primitive)
+function createLine(start, end, color = 0xffffff) {
+  const geometry = new THREE.BufferGeometry().setFromPoints([start, end]);
+  const material = new THREE.LineBasicMaterial({ color });
+  return new THREE.Line(geometry, material);
+}
+// --------------------
+// Create Shapes
+// --------------------
+// Line
+const line = createLine(
+  new THREE.Vector3(-20, -10, 0),
+  new THREE.Vector3(20, -10, 0)
+);
+scene.add(line);
+*/
+
+
+//Task1
+// Triangle
+
+function createTriangle(A1,A2,A3, color = 0xffffff) {
+  const geometry = new THREE.BufferGeometry().setFromPoints([
+    A1,A2,
+    A2,A3,
+    A3,A1
+  ]);
+
+  const material = new THREE.LineBasicMaterial({ color });
+  return new THREE.Line(geometry, material);
+}
+const triangle = createTriangle(
+  new THREE.Vector3(0, 20, 0),
+  new THREE.Vector3(-20 ,-20, 0),
+  new THREE.Vector3(20, -20, 0)
+);
+
+scene.add(triangle);
+
+// Render Loop
+function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
+
+
+
+
+
+
+
