@@ -1,0 +1,169 @@
+Homework #2
+
+
+
+// Import THREE
+import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r132/build/three.module.js';
+import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/controls/OrbitControls.js';
+
+// Create Renderer
+const renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+// Create Camera and Scene
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000);
+camera.position.set(300, 300, 650);
+
+const scene = new THREE.Scene();
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0, 250, 0);
+controls.update();
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.9));
+const light = new THREE.DirectionalLight(0xffffff, 0.8);
+light.position.set(600, 900, 300);
+scene.add(light);
+
+/*
+Assignment Requirements 
+1. Constructing the Washington Monument Polyhedron 
+You will create an eight-sided polyhedron representing the Washington Monument. Your model should 
+follow these approximate dimensions: 
+• Base width: ~55 feet 
+• Top width: ~34 feet 
+• Pyramidion height (top pyramid): ~55 feet 
+• Total height: ~555 feet 
+Key Constraints: 
+• The polyhedron should have 8 sides (4 for the tower and 4 for the pyramidion). 
+• No base should be included. 
+• The origin (0,0,0) should be at the center of the base, directly below the peak. 
+2. Color Implementation 
+Each side of the polyhedron should have a distinct color so that all edges are clearly visible. 
+• Use at least three different methods for specifying colors: 
+o THREE.ColorKeywords 
+o Hexadecimal notation 
+o CSS strings 
+o RGB format (must be used at least twice) 
+• Document the colors you use in comments within your code. 
+3. Material & Rendering 
+• Use the default one-sided material so that the monument’s sides disappear when viewed from 
+below. 
+• (Optional) Experiment with Alpha Compositing techniques available in Three.js. 
+4. Animation: Rotating the Monument 
+After constructing the monument, implement requestAnimationFrame to rotate the object around the Y
+axis continuously. 
+*/
+
+//Washington monument
+
+/*• Base width: ~55 feet 
+• Top width: ~34 feet 
+• Pyramidion height (top pyramid): ~55 feet 
+• Total height: ~555 feet 
+Key Constraints: 
+• The polyhedron should have 8 sides (4 for the tower and 4 for the pyramidion). 
+• No base should be included. 
+• The origin (0,0,0) should be at the center of the base */
+
+const baseHalf = 55 / 2;      
+const topHalf  = 34 / 2;      
+const towerH   = 555 - 55;    
+const peakY    = 555;
+
+
+const b0 = new THREE.Vector3(-baseHalf, 0, -baseHalf);
+const b1 = new THREE.Vector3( baseHalf, 0, -baseHalf);
+const b2 = new THREE.Vector3( baseHalf, 0,  baseHalf);
+const b3 = new THREE.Vector3(-baseHalf, 0,  baseHalf);
+
+
+const t0 = new THREE.Vector3(-topHalf, towerH, -topHalf);
+const t1 = new THREE.Vector3( topHalf, towerH, -topHalf);
+const t2 = new THREE.Vector3( topHalf, towerH,  topHalf);
+const t3 = new THREE.Vector3(-topHalf, towerH,  topHalf);
+
+
+const peak = new THREE.Vector3(0, peakY, 0);
+
+// color implementation
+const colors = [
+  "gold",               // keyword
+  0x00ffcc,             // hex number
+  "dodgerblue",         // CSS string
+  "#ff7f50",            // CSS hex string
+  "rgb(255,0,255)",     // RGB #1
+  "rgb(50,205,50)",     // RGB #2
+  "white",              // CSS keyword string
+  0x8a2be2              // hex number
+];
+
+function makeQuadFace(a, b, c, d, color) {
+  const geometry = new THREE.BufferGeometry();
+
+  const vertices = new Float32Array([
+    a.x, a.y, a.z,
+    b.x, b.y, b.z,
+    c.x, c.y, c.z,
+
+    c.x, c.y, c.z,
+    d.x, d.y, d.z,
+    a.x, a.y, a.z
+  ]);
+
+  geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+  geometry.computeVertexNormals();
+
+  const material = new THREE.MeshLambertMaterial({
+    color,
+    side: THREE.FrontSide, 
+    flatShading: true
+  });
+
+  return new THREE.Mesh(geometry, material);
+}
+
+// Pyramid
+function makePyr(a, b, c, color) {
+  const geometry = new THREE.BufferGeometry();
+
+  const vertices = new Float32Array([
+    a.x, a.y, a.z,
+    b.x, b.y, b.z,
+    c.x, c.y, c.z
+  ]);
+
+  geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+  geometry.computeVertexNormals();
+
+  const material = new THREE.MeshLambertMaterial({
+    color,
+    side: THREE.FrontSide,
+    flatShading: true
+  });
+
+  return new THREE.Mesh(geometry, material);
+}
+
+const monument = new THREE.Group();
+scene.add(monument);
+
+monument.add(makeQuadFace(b3, b2, t2, t3, colors[0]));
+monument.add(makeQuadFace(b2, b1, t1, t2, colors[1]));
+monument.add(makeQuadFace(b1, b0, t0, t1, colors[2]));
+monument.add(makeQuadFace(b0, b3, t3, t0, colors[3]));
+
+monument.add(makePyr(t3, t2, peak, colors[4]));
+monument.add(makePyr(t2, t1, peak, colors[5]));
+monument.add(makePyr(t1, t0, peak, colors[6]));
+monument.add(makePyr(t0, t3, peak, colors[7]));
+
+
+function animate() {
+  requestAnimationFrame(animate);
+  monument.rotation.y += 0.006;
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
