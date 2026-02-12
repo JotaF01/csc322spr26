@@ -1,0 +1,123 @@
+Homework #3
+
+// Import THREE
+import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r132/build/three.module.js';
+import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/controls/OrbitControls.js';
+
+// Create Renderer
+const renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+// Create Camera and Scene
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 500);
+camera.position.set(0, 0, 10);
+const scene = new THREE.Scene();
+const controls = new OrbitControls(camera, renderer.domElement);
+
+// Axes
+scene.add(new THREE.AxesHelper(6));
+
+/*
+// --------------------
+// Implicit Circle: x^2 + y^2 = 25
+// --------------------
+const radius = 5;
+const circlePoints = [];
+const segments = 128;
+
+for (let i = 0; i <= segments; i++) {
+  const theta = (i / segments) * Math.PI * 2;
+  circlePoints.push(
+    new THREE.Vector3(
+      radius * Math.cos(theta),
+      radius * Math.sin(theta),
+      0
+    )
+  );
+}
+
+const circleGeometry = new THREE.BufferGeometry().setFromPoints(circlePoints);
+const circleMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
+const circle = new THREE.Line(circleGeometry, circleMaterial);
+scene.add(circle);
+
+// --------------------
+// Gradient Vectors on the Curve
+// ∇f = <2x, 2y>
+// --------------------
+const gradientGroup = new THREE.Group();
+
+for (let i = 0; i < segments; i += 8) {
+  const p = circlePoints[i];
+
+  // Gradient at point
+  const grad = new THREE.Vector3(
+    2 * p.x,
+    2 * p.y,
+    0
+  );
+
+  const arrow = new THREE.ArrowHelper(
+    grad.clone().normalize(),
+    p,
+    1.2,                // fixed visual length
+    0x00ff00
+  );
+
+  gradientGroup.add(arrow);
+}
+
+scene.add(gradientGroup);
+*/
+
+// Implicit equation
+//  F(x,y) = (x^2+y^2)^2 - 4(x^2-y^2) = 0
+//
+
+function F(x, y) { 
+  const a = x * x + y * y;     
+  const b = x * x - y * y;     
+  return (a * a) - 4 * b;      
+}
+
+const implicitMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
+const implicitPoints = [];
+const N = 720; 
+
+for (let i = 0; i <= N; i++) {
+  const theta = (i / N) * Math.PI * 2;      
+  const c = Math.cos(2 * theta);            
+
+  if (c < 0) continue;                      
+
+  const r = 2 * Math.sqrt(c);               
+
+  const x = r * Math.cos(theta);            
+  const y = r * Math.sin(theta);            
+
+  implicitPoints.push(new THREE.Vector3(x, y, 0));
+}
+
+const implicitGeometry = new THREE.BufferGeometry().setFromPoints(implicitPoints);
+const implicitCurve = new THREE.Line(implicitGeometry, implicitMaterial);
+scene.add(implicitCurve);
+
+const originDot = new THREE.Mesh(
+  new THREE.SphereGeometry(0.15, 16, 16),
+  new THREE.MeshBasicMaterial({ color: 0xffffff })
+);
+scene.add(originDot);
+
+// Render Loop
+function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
+
+
+
+
+
